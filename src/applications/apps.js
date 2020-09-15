@@ -88,6 +88,7 @@ export function getAppStatus(appName) {
   return app ? app.status : null;
 }
 
+// 最主要的 API 之一，注册一个应用
 export function registerApplication(
   appNameOrConfig,
   appOrLoadApp,

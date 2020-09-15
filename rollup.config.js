@@ -30,6 +30,7 @@ const terserOpts = {
 
 export default (async () => [
   {
+    // 入口
     input: "./src/single-spa.js",
     output: [
       {
