@@ -55,6 +55,7 @@ export function formatErrorMessage(code, msg, ...args) {
   }`;
 }
 
+// 一堆操作，其实就是错误信息的处理，同时改变状态为 SKIP_BECAUSE_BROKEN
 export function transformErr(ogErr, appOrParcel, newStatus) {
   const errPrefix = `${objectType(appOrParcel)} '${toName(
     appOrParcel

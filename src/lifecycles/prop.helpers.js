@@ -4,6 +4,7 @@ import { assign } from "../utils/assign.js";
 import { isParcel, toName } from "../applications/app.helpers.js";
 import { formatErrorMessage } from "../applications/app-errors.js";
 
+// 获取 app 的一些属性信息
 export function getProps(appOrParcel) {
   const name = toName(appOrParcel);
   let customProps =

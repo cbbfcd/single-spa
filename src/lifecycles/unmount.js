@@ -9,9 +9,13 @@ import { reasonableTime } from "../applications/timeouts.js";
 
 export function toUnmountPromise(appOrParcel, hardFail) {
   return Promise.resolve().then(() => {
+
+    // 只有 mounted 的应用才能 unmount
     if (appOrParcel.status !== MOUNTED) {
       return appOrParcel;
     }
+
+    // 移除挂载中，这个阶段会执行 app 的 unmount 函数
     appOrParcel.status = UNMOUNTING;
 
     const unmountChildrenParcels = Object.keys(
@@ -41,7 +45,7 @@ export function toUnmountPromise(appOrParcel, hardFail) {
         .then(() => {
           // The appOrParcel needs to stay in a broken status if its children parcels fail to unmount
           if (!parcelError) {
-            appOrParcel.status = NOT_MOUNTED;
+            appOrParcel.status = NOT_MOUNTED; // 卸载成功后，改变状态为未挂载
           }
         })
         .catch((err) => {

@@ -39,6 +39,7 @@ export function ensureJQuerySupport(jQuery = window.jQuery) {
   }
 }
 
+// 做一层代理
 function captureRoutingEvents(
   originalJQueryFunction,
   nativeFunctionToCall,
@@ -52,6 +53,8 @@ function captureRoutingEvents(
 
   const eventNames = eventString.split(/\s+/);
   eventNames.forEach((eventName) => {
+
+    // hashchange popstate 事件，利用 window.addEventListener 监听
     if (routingEventsListeningTo.indexOf(eventName) >= 0) {
       nativeFunctionToCall(eventName, fn);
       eventString = eventString.replace(eventName, "");

@@ -74,6 +74,7 @@ export function getMountedApps() {
   return apps.filter(isActive).map(toName);
 }
 
+// 获取 app names
 export function getAppNames() {
   return apps.map(toName);
 }
@@ -96,6 +97,7 @@ export function registerApplication(
   activeWhen,
   customProps
 ) {
+  // 格式化参数
   const registration = sanitizeArguments(
     appNameOrConfig,
     appOrLoadApp,
@@ -103,6 +105,7 @@ export function registerApplication(
     customProps
   );
 
+  // 验重
   if (getAppNames().indexOf(registration.name) !== -1)
     throw Error(
       formatErrorMessage(
@@ -113,11 +116,12 @@ export function registerApplication(
       )
     );
 
+  // 注册，其实就是加入队列中
   apps.push(
     assign(
       {
         loadErrorTime: null,
-        status: NOT_LOADED,
+        status: NOT_LOADED, // 初始状态注册咯，但是未加载
         parcels: {},
         devtools: {
           overlays: {
@@ -130,8 +134,10 @@ export function registerApplication(
     )
   );
 
+  // 为了 node 环境也能跑起来，做个判断
   if (isInBrowser) {
     ensureJQuerySupport();
+    // 这是核心的方法，路由控制
     reroute();
   }
 }
@@ -140,6 +146,7 @@ export function checkActivityFunctions(location = window.location) {
   return apps.filter((app) => app.activeWhen(location)).map(toName);
 }
 
+// 注销 app
 export function unregisterApplication(appName) {
   if (apps.filter((app) => toName(app) === appName).length === 0) {
     throw Error(
@@ -158,6 +165,7 @@ export function unregisterApplication(appName) {
   });
 }
 
+// 卸载 app
 export function unloadApplication(appName, opts = { waitForUnmount: false }) {
   if (typeof appName !== "string") {
     throw Error(
@@ -215,6 +223,7 @@ export function unloadApplication(appName, opts = { waitForUnmount: false }) {
   }
 }
 
+// 立即执行卸载，立即和等待其实就是通过 promise 实现的，没有决议，就会等待咯
 function immediatelyUnloadApp(app, resolve, reject) {
   toUnmountPromise(app)
     .then(toUnloadPromise)
