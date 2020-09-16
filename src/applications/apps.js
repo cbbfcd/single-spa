@@ -88,7 +88,8 @@ export function getAppStatus(appName) {
   return app ? app.status : null;
 }
 
-// 最主要的 API 之一，注册一个应用
+// 最主要的 API 之一，注册应用
+// 所谓注册，其实就是往 apps 中添加一个应用
 export function registerApplication(
   appNameOrConfig,
   appOrLoadApp,
@@ -227,6 +228,7 @@ function immediatelyUnloadApp(app, resolve, reject) {
     .catch(reject);
 }
 
+// 也是校验，而且和下面校验不一样，这里代码略累赘
 function validateRegisterWithArguments(
   name,
   appOrLoadApp,
@@ -270,6 +272,7 @@ function validateRegisterWithArguments(
     );
 }
 
+// 校验传入配置的函数
 export function validateRegisterWithConfig(config) {
   if (Array.isArray(config) || config === null)
     throw Error(
@@ -337,6 +340,7 @@ export function validateRegisterWithConfig(config) {
     );
 }
 
+// 校验自定义透穿的 props
 function validCustomProps(customProps) {
   return (
     !customProps ||
@@ -347,6 +351,7 @@ function validCustomProps(customProps) {
   );
 }
 
+// 对参数进行处理
 function sanitizeArguments(
   appNameOrConfig,
   appOrLoadApp,
@@ -381,6 +386,7 @@ function sanitizeArguments(
     registration.customProps = customProps;
   }
 
+  // 一些兜底的处理
   registration.loadApp = sanitizeLoadApp(registration.loadApp);
   registration.customProps = sanitizeCustomProps(registration.customProps);
   registration.activeWhen = sanitizeActiveWhen(registration.activeWhen);
@@ -388,6 +394,7 @@ function sanitizeArguments(
   return registration;
 }
 
+// 确保 loadApp 是一个返回 promise 的函数，按需加载的核心其实就是利用 promise.all 这种能力
 function sanitizeLoadApp(loadApp) {
   if (typeof loadApp !== "function") {
     return () => Promise.resolve(loadApp);
@@ -396,10 +403,12 @@ function sanitizeLoadApp(loadApp) {
   return loadApp;
 }
 
+// customProps 兜底是个 {}
 function sanitizeCustomProps(customProps) {
   return customProps ? customProps : {};
 }
 
+// activeWhen 处理成函数来进行匹配判断
 function sanitizeActiveWhen(activeWhen) {
   let activeWhenArray = Array.isArray(activeWhen) ? activeWhen : [activeWhen];
   activeWhenArray = activeWhenArray.map((activeWhenOrPath) =>
@@ -412,9 +421,13 @@ function sanitizeActiveWhen(activeWhen) {
     activeWhenArray.some((activeWhen) => activeWhen(location));
 }
 
+// 也是转成函数的 activeWhen
 export function pathToActiveWhen(path) {
   const regex = toDynamicPathValidatorRegex(path);
 
+  // 比如 href: https://single-spa.js.org/docs/getting-started-overview/?key=1
+  //   origin: https://single-spa.js.org
+  //   search: ?key=1
   return (location) => {
     const route = location.href
       .replace(location.origin, "")
@@ -424,6 +437,7 @@ export function pathToActiveWhen(path) {
   };
 }
 
+// 生成一个正则来判断 activeWhen 是否匹配
 export function toDynamicPathValidatorRegex(path) {
   let lastIndex = 0,
     inDynamic = false,
@@ -435,8 +449,8 @@ export function toDynamicPathValidatorRegex(path) {
 
   for (let charIndex = 0; charIndex < path.length; charIndex++) {
     const char = path[charIndex];
-    const startOfDynamic = !inDynamic && char === ":";
-    const endOfDynamic = inDynamic && char === "/";
+    const startOfDynamic = !inDynamic && char === ":"; // e.g. /:id
+    const endOfDynamic = inDynamic && char === "/"; // e.g. /foo/bar
     if (startOfDynamic || endOfDynamic) {
       appendToRegex(charIndex);
     }

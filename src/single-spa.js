@@ -44,5 +44,5 @@ if (isInBrowser && window.__SINGLE_SPA_DEVTOOLS__) {
   window.__SINGLE_SPA_DEVTOOLS__.exposedMethods = devtools;
 }
 
-// 入口文件中，我们重点关注的其实就是 start、registerApplication、mountRootParcel 
+// 入口文件中，我们重点关注的其实就是 start、registerApplication、mountRootParcel
 // 其它的方法大致浏览一下，通过打点来观察流程
