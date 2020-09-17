@@ -114,6 +114,7 @@ export function reasonableTime(appOrParcel, lifecycle) {
     let finished = false;
     let errored = false;
 
+    // 执行生命周期钩子，注入了一些 props，比如 single-app、customProps 等
     appOrParcel[lifecycle](getProps(appOrParcel))
       .then((val) => {
         finished = true;
@@ -124,7 +125,9 @@ export function reasonableTime(appOrParcel, lifecycle) {
         reject(val);
       });
 
+    // 超时警告
     setTimeout(() => maybeTimingOut(1), warningPeriod);
+    // 超时报错
     setTimeout(() => maybeTimingOut(true), timeoutConfig.millis);
 
     const errMsg = formatErrorMessage(
@@ -144,6 +147,7 @@ export function reasonableTime(appOrParcel, lifecycle) {
         if (shouldError === true) {
           errored = true;
           if (timeoutConfig.dieOnTimeout) {
+            // 如果设置了 dieOnTimeout，就会 reject 出去
             reject(Error(errMsg));
           } else {
             console.error(errMsg);

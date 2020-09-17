@@ -7,6 +7,7 @@ import {
 import { handleAppError, transformErr } from "../applications/app-errors.js";
 import { reasonableTime } from "../applications/timeouts.js";
 
+// 执行 unmount app 操作，状态 mounted -> mounting -> not_mounted or skip_because_broken
 export function toUnmountPromise(appOrParcel, hardFail) {
   return Promise.resolve().then(() => {
 
@@ -37,7 +38,7 @@ export function toUnmountPromise(appOrParcel, hardFail) {
           }
         });
       })
-      .then(() => appOrParcel);
+      .then(() => appOrParcel); // 打死也不走出错的逻辑，保证 resolve(appOrParcel)
 
     function unmountAppOrParcel() {
       // We always try to unmount the appOrParcel, even if the children parcels failed to unmount.
@@ -45,7 +46,7 @@ export function toUnmountPromise(appOrParcel, hardFail) {
         .then(() => {
           // The appOrParcel needs to stay in a broken status if its children parcels fail to unmount
           if (!parcelError) {
-            appOrParcel.status = NOT_MOUNTED; // 卸载成功后，改变状态为未挂载
+            appOrParcel.status = NOT_MOUNTED; // 卸载成功后，改变状态为未挂载，如果没成功，状态就是 SKIP_BECAUSE_BROKEN
           }
         })
         .catch((err) => {

@@ -30,7 +30,7 @@ export function getProps(appOrParcel) {
   const result = assign({}, customProps, {
     name,
     mountParcel: mountParcel.bind(appOrParcel),
-    singleSpa,
+    singleSpa, // 一股脑的扔进去
   });
 
   if (isParcel(appOrParcel)) {

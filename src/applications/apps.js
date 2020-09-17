@@ -25,6 +25,7 @@ import { assign } from "../utils/assign";
 
 const apps = [];
 
+// 分门别类一下
 export function getAppChanges() {
   const appsToUnload = [],
     appsToUnmount = [],
@@ -32,6 +33,7 @@ export function getAppChanges() {
     appsToMount = [];
 
   // We re-attempt to download applications in LOAD_ERROR after a timeout of 200 milliseconds
+  // 就是一种 re-try 的机制
   const currentTime = new Date().getTime();
 
   apps.forEach((app) => {
@@ -39,26 +41,27 @@ export function getAppChanges() {
       app.status !== SKIP_BECAUSE_BROKEN && shouldBeActive(app);
 
     switch (app.status) {
+      // load 失败了，隔 200ms 又试试
       case LOAD_ERROR:
         if (currentTime - app.loadErrorTime >= 200) {
           appsToLoad.push(app);
         }
         break;
-      case NOT_LOADED:
-      case LOADING_SOURCE_CODE:
+      case NOT_LOADED: // 注册，未加载应用
+      case LOADING_SOURCE_CODE: // 加载应用
         if (appShouldBeActive) {
           appsToLoad.push(app);
         }
         break;
-      case NOT_BOOTSTRAPPED:
-      case NOT_MOUNTED:
+      case NOT_BOOTSTRAPPED: // 加载，未启动
+      case NOT_MOUNTED: // 未加载
         if (!appShouldBeActive && getAppUnloadInfo(toName(app))) {
           appsToUnload.push(app);
         } else if (appShouldBeActive) {
           appsToMount.push(app);
         }
         break;
-      case MOUNTED:
+      case MOUNTED: // 挂载
         if (!appShouldBeActive) {
           appsToUnmount.push(app);
         }
@@ -70,6 +73,7 @@ export function getAppChanges() {
   return { appsToUnload, appsToUnmount, appsToLoad, appsToMount };
 }
 
+// 获取挂载了的 app
 export function getMountedApps() {
   return apps.filter(isActive).map(toName);
 }
@@ -84,6 +88,7 @@ export function getRawAppData() {
   return [...apps];
 }
 
+// 获取 app 的状态
 export function getAppStatus(appName) {
   const app = find(apps, (app) => toName(app) === appName);
   return app ? app.status : null;
@@ -142,6 +147,7 @@ export function registerApplication(
   }
 }
 
+// 返回 active 的应用名称
 export function checkActivityFunctions(location = window.location) {
   return apps.filter((app) => app.activeWhen(location)).map(toName);
 }
@@ -159,6 +165,7 @@ export function unregisterApplication(appName) {
     );
   }
 
+  // unload 掉 app 然后从 apps 中移除
   return unloadApplication(appName).then(() => {
     const appIndex = apps.map(toName).indexOf(appName);
     apps.splice(appIndex, 1);
@@ -188,6 +195,8 @@ export function unloadApplication(appName, opts = { waitForUnmount: false }) {
   }
 
   const appUnloadInfo = getAppUnloadInfo(toName(app));
+
+  // 下面就是两种情况，一种是需要等到 unmount 之后才执行 unload，一直是立即执行，前者的等待是通过 promise 实现的，没决议就一直 pending 状态，等着呗
   if (opts && opts.waitForUnmount) {
     // We need to wait for unmount before unloading the app
 
@@ -225,8 +234,8 @@ export function unloadApplication(appName, opts = { waitForUnmount: false }) {
 
 // 立即执行卸载，立即和等待其实就是通过 promise 实现的，没有决议，就会等待咯
 function immediatelyUnloadApp(app, resolve, reject) {
-  toUnmountPromise(app)
-    .then(toUnloadPromise)
+  toUnmountPromise(app) // * 执行 unmount
+    .then(toUnloadPromise) // * 执行 unload
     .then(() => {
       resolve();
       setTimeout(() => {
