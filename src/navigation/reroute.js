@@ -28,7 +28,10 @@ export function triggerAppChange() {
   return reroute();
 }
 
+// core re-route
 export function reroute(pendingPromises = [], eventArguments) {
+
+  // 老套路，如果正在进行，就放进一个队列中等着
   if (appChangeUnderway) {
     return new Promise((resolve, reject) => {
       peopleWaitingOnAppChange.push({

@@ -37,6 +37,8 @@ export function getAppChanges() {
   const currentTime = new Date().getTime();
 
   apps.forEach((app) => {
+
+    // 没有在错误状态，并且 activeWhen 匹配到的
     const appShouldBeActive =
       app.status !== SKIP_BECAUSE_BROKEN && shouldBeActive(app);
 
