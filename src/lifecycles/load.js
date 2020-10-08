@@ -22,14 +22,18 @@ import { assign } from "../utils/assign.js";
 
 export function toLoadPromise(app) {
   return Promise.resolve().then(() => {
+
+    // https://github.com/single-spa/single-spa/issues/452
     if (app.loadPromise) {
       return app.loadPromise;
     }
 
+    // not_loaded 或者 load_error 这两种状态的才会执行后边加载过程
     if (app.status !== NOT_LOADED && app.status !== LOAD_ERROR) {
       return app;
     }
 
+    // 正在 load 了
     app.status = LOADING_SOURCE_CODE;
 
     let appOpts, isUserErr;

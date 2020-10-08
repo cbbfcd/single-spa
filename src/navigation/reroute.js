@@ -59,10 +59,12 @@ export function reroute(pendingPromises = [], eventArguments) {
     );
     return performAppChanges();
   } else {
+    // 如果没有启动，就只是 load 一下而已
     appsThatChanged = appsToLoad;
     return loadApps();
   }
 
+  // 加载 app
   function loadApps() {
     return Promise.resolve().then(() => {
       const loadPromises = appsToLoad.map(toLoadPromise);
