@@ -50,7 +50,9 @@ export function reroute(pendingPromises = [], eventArguments) {
   } = getAppChanges();
   let appsThatChanged;
 
+  // 如果启动了，也就是调用了 start 方法
   if (isStarted()) {
+    // 加个锁
     appChangeUnderway = true;
     appsThatChanged = appsToUnload.concat(
       appsToLoad,
@@ -83,6 +85,7 @@ export function reroute(pendingPromises = [], eventArguments) {
   }
 
   function performAppChanges() {
+    // 发起各个阶段的事件给外部监听
     return Promise.resolve().then(() => {
       // https://github.com/single-spa/single-spa/issues/545
       window.dispatchEvent(

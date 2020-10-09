@@ -17,6 +17,7 @@ export function toMountPromise(appOrParcel, hardFail) {
       return appOrParcel;
     }
 
+    // 首次 mount 有个锁在控制哦
     if (!beforeFirstMountFired) {
       window.dispatchEvent(new CustomEvent("single-spa:before-first-mount"));
       beforeFirstMountFired = true;
@@ -24,8 +25,10 @@ export function toMountPromise(appOrParcel, hardFail) {
 
     return reasonableTime(appOrParcel, "mount")
       .then(() => {
+        // 状态 not-mounted  ->  mounted
         appOrParcel.status = MOUNTED;
 
+        // 锁
         if (!firstMountFired) {
           window.dispatchEvent(new CustomEvent("single-spa:first-mount"));
           firstMountFired = true;

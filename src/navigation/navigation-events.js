@@ -123,6 +123,7 @@ function createPopStateEvent(state, originalMethodName) {
   return evt;
 }
 
+// 通过劫持 hashchange 和 popstate 事件进行路由的事件拦截
 if (isInBrowser) {
   // We will trigger an app change for any routing events.
   window.addEventListener("hashchange", urlReroute);

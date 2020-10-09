@@ -10,6 +10,7 @@ import {
 } from "../applications/app-errors.js";
 import { reasonableTime } from "../applications/timeouts.js";
 
+// mounted -> updating -> mounted
 export function toUpdatePromise(parcel) {
   return Promise.resolve().then(() => {
     if (parcel.status !== MOUNTED) {
